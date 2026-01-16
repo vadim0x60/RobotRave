@@ -12,14 +12,138 @@ Music Audio → FACT Model → SMPL Human Motion → Retarget → Tony Pro Servo
 
 ### Why FACT?
 We evaluated three approaches:
-- **MDLT** (Music to Dance Language Translation) - No pre-trained weights, requires ~140 hours training
-- **DFKI Robot Dance** - Code not publicly available
-- **FACT** (Google) - Pre-trained checkpoints available, state-of-the-art quality
+- [**MDLT**](https://github.com/meowatthemoon/MDLT) (Music to Dance Language Translation) - No pre-trained weights, requires ~140 hours training ([paper](https://arxiv.org/abs/2403.15569))
+- [**DFKI Robot Dance**](https://ieeexplore.ieee.org/document/9981462) - Physically feasible trajectories but code not publicly available
+- [**FACT**](https://github.com/google-research/mint) (Google) - Pre-trained checkpoints available, state-of-the-art quality ([paper](https://arxiv.org/abs/2101.08779))
 
-FACT outputs motion in SMPL format (24 joints), which we retarget to Tony Pro's 16 servos.
+FACT was the clear winner: Google already spent months training it on professional dancers, and we can just download and use it.
 
 ### Fallback: Beat-Sync Dancing
 If FACT inference is too slow or fails, we have rule-based beat-synchronized dancing using `aubio` for real-time beat/onset detection with pre-defined dance moves.
+
+---
+
+## How It Works (Plain English)
+
+### What is the FACT Model?
+
+FACT is a neural network that learned to dance by watching 1,408 videos of professional dancers. Google researchers trained it to understand the relationship between music and movement - things like:
+
+- "When there's a drum hit, raise your arms"
+- "During a bass drop, crouch down"
+- "When the melody rises, extend outward"
+
+You feed it a song, and it outputs a sequence of body poses - one for every frame (60 per second). It's like having a professional choreographer that works instantly.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  INPUT: Music (tempo, beats, melody, energy)            │
+│         + 2-second "seed" motion to start from          │
+│                          ↓                              │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │         FACT Neural Network                      │    │
+│  │                                                  │    │
+│  │   Learned from watching 5.2 hours of dance      │    │
+│  │   videos across 10 genres (pop, hip-hop,        │    │
+│  │   breakdance, house, krump, etc.)               │    │
+│  └─────────────────────────────────────────────────┘    │
+│                          ↓                              │
+│  OUTPUT: Body pose every 1/60th of a second             │
+│          (72 numbers describing joint angles)           │
+└─────────────────────────────────────────────────────────┘
+```
+
+### What is AIST++?
+
+[AIST++](https://google.github.io/aistplusplus_dataset/) is a massive dance dataset that Google created:
+
+- **1,408 dance sequences** performed by 30 professional dancers
+- **10 dance genres**: pop, lock, waack, jazz, house, middle hip-hop, break, krump, street jazz, LA house
+- **5.2 hours** of motion capture data (10.1 million frames)
+- Every dance was recorded with 9 cameras and precise motion tracking
+
+This is what FACT learned from. The quality of the output depends on the quality of the training data, and AIST++ contains genuinely skilled dancers.
+
+### What is SMPL?
+
+SMPL (Skinned Multi-Person Linear Model) is a standard way to describe human body poses mathematically. Instead of describing movement in words ("raise your right arm"), SMPL uses numbers.
+
+```
+         head (joint 15)
+           │
+         neck (joint 12)
+           │
+    ┌──────┴──────┐
+ L shoulder    R shoulder
+ (joint 16)    (joint 17)
+    │              │
+ L elbow       R elbow
+ (joint 18)    (joint 19)
+    │              │
+ L wrist       R wrist
+ (joint 20)    (joint 21)
+           │
+        spine
+           │
+    ┌──────┴──────┐
+  L hip        R hip
+ (joint 1)    (joint 2)
+    │              │
+  L knee       R knee
+ (joint 4)    (joint 5)
+    │              │
+ L ankle       R ankle
+ (joint 7)    (joint 8)
+```
+
+Each of the 24 joints has 3 rotation values (x, y, z axes). So **72 numbers** completely describe any human pose. FACT outputs these 72 numbers for every frame of the dance.
+
+### How We Translate 24 Joints → 16 Servos
+
+The challenge: SMPL describes a human body with 24 joints, but Tony Pro only has 16 servos. They don't match up perfectly.
+
+**What we keep:**
+| SMPL Joint | Tony Pro Servo | Why |
+|------------|---------------|-----|
+| head | head_pitch (8), head_yaw (16) | Direct match |
+| r_shoulder | right_shoulder_pitch (7) | Take the forward/back rotation |
+| r_elbow | right_elbow_pitch (5) | Take the bend angle |
+| l_shoulder | left_shoulder_pitch (15) | Take the forward/back rotation |
+| l_elbow | left_elbow_pitch (13) | Take the bend angle |
+| r_hip | right_hip_roll/yaw/pitch (1,2,4) | 3 DOF match |
+| r_knee | right_knee_pitch (3) | Direct match |
+| r_ankle | right_ankle_pitch (6) | Direct match |
+| (same for left leg) | ... | ... |
+
+**What we lose:**
+- Shoulder roll (Tony Pro arms only move forward/back, not sideways)
+- Wrist rotation (no wrist servos)
+- Spine/torso twist (no torso servo)
+- Finger movements (no hand servos)
+
+**The conversion process:**
+```python
+# SMPL gives us: right_shoulder rotation = [0.5, -0.3, 0.2] radians (x, y, z)
+# Tony Pro only has shoulder pitch (forward/back motion)
+
+# 1. Extract the relevant axis (x = pitch = forward/back)
+angle = smpl_right_shoulder[0]  # 0.5 radians
+
+# 2. Convert radians to servo pulse (0-1000 scale, 500 = center)
+pulse = 500 + (angle * 191)  # 191 pulse units per radian
+
+# 3. Clamp to safe range (don't break the servo!)
+pulse = clamp(pulse, 200, 800)
+
+# 4. Send to robot
+servo.set_position(7, pulse)  # Servo 7 = right shoulder
+```
+
+**Safety scaling:**
+- Arms and head: 100% of SMPL motion (safe to move freely)
+- Legs: 30% of SMPL motion (robot can fall over if legs move too much)
+
+The result isn't a perfect recreation of the human dance, but it captures the essence - when the dancer's arms go up, the robot's arms go up. When they bob their head, the robot bobs its head.
 
 ---
 
