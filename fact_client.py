@@ -52,7 +52,7 @@ class RobotController:
             self.controller = Controller(board)
             print("Robot connected!")
         elif not simulate:
-            print("⚠️  Robot SDK not available - running in simulation")
+            print("Robot SDK not available - running in simulation")
             self.simulate = True
 
     def set_servos(self, servo_dict, time_ms=50):
@@ -66,11 +66,64 @@ class RobotController:
             for servo_id, pulse in servo_dict.items():
                 self.controller.set_bus_servo_pulse(int(servo_id), int(pulse), int(time_ms))
 
+    async def set_servos_async(self, servo_dict, time_ms=50):
+        """Async version for compatibility."""
+        self.set_servos(servo_dict, time_ms)
+
     def print_status(self):
         """Print current servo state."""
         if self.last_servos:
             servos_str = ", ".join(f"{k}:{v}" for k, v in sorted(self.last_servos.items()))
             print(f"  Servos: {servos_str}")
+
+    async def close(self):
+        """Cleanup."""
+        pass
+
+
+class RemoteRobotController:
+    """Control robot over network via servo_receiver.py on Pi."""
+
+    def __init__(self, robot_url):
+        self.robot_url = robot_url
+        self.ws = None
+        self.last_servos = {}
+        self.simulate = False
+
+    async def connect(self):
+        """Connect to robot."""
+        print(f"Connecting to robot at {self.robot_url}...")
+        self.ws = await websockets.connect(self.robot_url)
+        # Test connection
+        await self.ws.send(json.dumps({'type': 'ping'}))
+        response = await asyncio.wait_for(self.ws.recv(), timeout=5)
+        if json.loads(response).get('type') == 'pong':
+            print("Robot connected!")
+        return self
+
+    async def set_servos_async(self, servo_dict, time_ms=50):
+        """Send servo commands to robot."""
+        self.last_servos = servo_dict
+        if self.ws:
+            await self.ws.send(json.dumps({
+                'type': 'servos',
+                'servos': servo_dict
+            }))
+
+    def set_servos(self, servo_dict, time_ms=50):
+        """Sync version - queues for async send."""
+        self.last_servos = servo_dict
+
+    def print_status(self):
+        """Print current servo state."""
+        if self.last_servos:
+            servos_str = ", ".join(f"{k}:{v}" for k, v in sorted(self.last_servos.items()))
+            print(f"  Servos: {servos_str}")
+
+    async def close(self):
+        """Close connection."""
+        if self.ws:
+            await self.ws.close()
 
 
 class AudioStreamer:
@@ -165,7 +218,10 @@ async def run_client(server_url, robot, simulate=False):
                             fps = 0
 
                         # Execute servo commands
-                        robot.set_servos(data['servos'])
+                        if hasattr(robot, 'set_servos_async'):
+                            await robot.set_servos_async(data['servos'])
+                        else:
+                            robot.set_servos(data['servos'])
 
                         # Print status
                         print(f"🦾 FPS: {fps:.1f} | "
@@ -222,11 +278,23 @@ async def test_connection(server_url):
         return False
 
 
+async def run_with_remote_robot(server_url, robot_url):
+    """Run client with remote robot."""
+    robot = RemoteRobotController(robot_url)
+    await robot.connect()
+    try:
+        await run_client(server_url, robot, simulate=False)
+    finally:
+        await robot.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description='FACT Dance Client')
     parser.add_argument('--server', type=str,
                        default=os.environ.get('FACT_SERVER', 'ws://localhost:8765'),
                        help='Server WebSocket URL')
+    parser.add_argument('--robot', type=str, default=None,
+                       help='Robot WebSocket URL (e.g., ws://raspberrypi.local:8766)')
     parser.add_argument('--simulate', action='store_true',
                        help='Simulation mode (no robot)')
     parser.add_argument('--test', action='store_true',
@@ -234,14 +302,24 @@ def main():
     args = parser.parse_args()
 
     print("=" * 60)
-    print("🎵 FACT Dance Client")
+    print("FACT Dance Client")
     print("=" * 60)
 
     if args.test:
         asyncio.run(test_connection(args.server))
         return
 
-    # Initialize robot
+    # Use remote robot if specified
+    if args.robot:
+        print(f"\nServer: {args.server}")
+        print(f"Robot: {args.robot}")
+        try:
+            asyncio.run(run_with_remote_robot(args.server, args.robot))
+        except KeyboardInterrupt:
+            print("\n\nStopped by user")
+        return
+
+    # Initialize local robot
     robot = RobotController(simulate=args.simulate)
 
     print(f"\nServer: {args.server}")

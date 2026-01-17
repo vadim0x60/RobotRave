@@ -28,7 +28,7 @@ for joint_name, config in RETARGET_MAP.items():
         'smpl_joint': config['smpl_joint'],
         'axis': config['axis'],
         'scale': config['scale'],
-        'offset': PULSE_CENTER,
+        'offset': config.get('center', PULSE_CENTER),  # Use per-servo center (PWM vs bus)
         'min': config['min'],
         'max': config['max'],
     }

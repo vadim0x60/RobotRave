@@ -1,5 +1,9 @@
 # RobotRave Project Notes
 
+## Robot (TonyPi)
+- **SSH**: `ssh -F /dev/null pi@192.168.149.1`
+- **Password**: raspberrypi
+
 ## Lambda Labs Server
 - **Server IP**: 132.145.180.105
 - **Port**: 8765

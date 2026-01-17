@@ -54,32 +54,35 @@ from tony_pro import SERVO, TonyProController
 # =============================================================================
 
 # Each move uses the correct Tony Pro servo IDs from tony_pro.py
-# SERVO.R_SHOULDER=7, SERVO.R_ELBOW=5, SERVO.L_SHOULDER=15, SERVO.L_ELBOW=13
-# SERVO.HEAD_PITCH=8, SERVO.HEAD_YAW=16
+# Bus servos: L_SHOULDER_ROLL=7, L_SHOULDER_PITCH=8, L_ELBOW=6
+#             R_SHOULDER_ROLL=15, R_SHOULDER_PITCH=16, R_ELBOW=11
+# PWM servos: HEAD_PITCH='pwm1', HEAD_YAW='pwm2'
+# Bus servo range: 0-1000, center 500
+# PWM servo range: 500-2500, center 1500
 
 STYLE_CHILL = {
     'name': 'CHILL',
     'description': 'Slow, smooth, flowing movements',
     'moves': {
         'sway_right': {
-            SERVO.R_SHOULDER: 550, SERVO.R_ELBOW: 550,
-            SERVO.L_SHOULDER: 450, SERVO.L_ELBOW: 450,
-            SERVO.HEAD_YAW: 550, SERVO.HEAD_PITCH: 500,
+            SERVO.R_SHOULDER_ROLL: 550, SERVO.R_ELBOW: 550,
+            SERVO.L_SHOULDER_ROLL: 450, SERVO.L_ELBOW: 450,
+            SERVO.HEAD_YAW: 1550, SERVO.HEAD_PITCH: 1500,
         },
         'sway_left': {
-            SERVO.R_SHOULDER: 450, SERVO.R_ELBOW: 450,
-            SERVO.L_SHOULDER: 550, SERVO.L_ELBOW: 550,
-            SERVO.HEAD_YAW: 450, SERVO.HEAD_PITCH: 500,
+            SERVO.R_SHOULDER_ROLL: 450, SERVO.R_ELBOW: 450,
+            SERVO.L_SHOULDER_ROLL: 550, SERVO.L_ELBOW: 550,
+            SERVO.HEAD_YAW: 1450, SERVO.HEAD_PITCH: 1500,
         },
         'gentle_wave': {
-            SERVO.R_SHOULDER: 400, SERVO.R_ELBOW: 550,
-            SERVO.L_SHOULDER: 500, SERVO.L_ELBOW: 500,
-            SERVO.HEAD_YAW: 500, SERVO.HEAD_PITCH: 450,
+            SERVO.R_SHOULDER_ROLL: 400, SERVO.R_ELBOW: 550,
+            SERVO.L_SHOULDER_ROLL: 500, SERVO.L_ELBOW: 500,
+            SERVO.HEAD_YAW: 1500, SERVO.HEAD_PITCH: 1450,
         },
         'neutral': {
-            SERVO.R_SHOULDER: 500, SERVO.R_ELBOW: 500,
-            SERVO.L_SHOULDER: 500, SERVO.L_ELBOW: 500,
-            SERVO.HEAD_YAW: 500, SERVO.HEAD_PITCH: 500,
+            SERVO.R_SHOULDER_ROLL: 500, SERVO.R_ELBOW: 500,
+            SERVO.L_SHOULDER_ROLL: 500, SERVO.L_ELBOW: 500,
+            SERVO.HEAD_YAW: 1500, SERVO.HEAD_PITCH: 1500,
         },
     },
     'sequences': [
@@ -94,34 +97,34 @@ STYLE_POP = {
     'description': 'Classic upbeat dance moves',
     'moves': {
         'arms_up': {
-            SERVO.R_SHOULDER: 300, SERVO.R_ELBOW: 500,
-            SERVO.L_SHOULDER: 700, SERVO.L_ELBOW: 500,
-            SERVO.HEAD_YAW: 500, SERVO.HEAD_PITCH: 400,
+            SERVO.R_SHOULDER_ROLL: 300, SERVO.R_ELBOW: 500,
+            SERVO.L_SHOULDER_ROLL: 700, SERVO.L_ELBOW: 500,
+            SERVO.HEAD_YAW: 1500, SERVO.HEAD_PITCH: 1400,
         },
         'arms_out': {
-            SERVO.R_SHOULDER: 500, SERVO.R_ELBOW: 300,
-            SERVO.L_SHOULDER: 500, SERVO.L_ELBOW: 700,
-            SERVO.HEAD_YAW: 500, SERVO.HEAD_PITCH: 500,
+            SERVO.R_SHOULDER_ROLL: 500, SERVO.R_ELBOW: 300,
+            SERVO.L_SHOULDER_ROLL: 500, SERVO.L_ELBOW: 700,
+            SERVO.HEAD_YAW: 1500, SERVO.HEAD_PITCH: 1500,
         },
         'clap_ready': {
-            SERVO.R_SHOULDER: 400, SERVO.R_ELBOW: 600,
-            SERVO.L_SHOULDER: 600, SERVO.L_ELBOW: 400,
-            SERVO.HEAD_YAW: 500, SERVO.HEAD_PITCH: 450,
+            SERVO.R_SHOULDER_ROLL: 400, SERVO.R_ELBOW: 600,
+            SERVO.L_SHOULDER_ROLL: 600, SERVO.L_ELBOW: 400,
+            SERVO.HEAD_YAW: 1500, SERVO.HEAD_PITCH: 1450,
         },
         'point_right': {
-            SERVO.R_SHOULDER: 350, SERVO.R_ELBOW: 400,
-            SERVO.L_SHOULDER: 500, SERVO.L_ELBOW: 500,
-            SERVO.HEAD_YAW: 600, SERVO.HEAD_PITCH: 500,
+            SERVO.R_SHOULDER_ROLL: 350, SERVO.R_ELBOW: 400,
+            SERVO.L_SHOULDER_ROLL: 500, SERVO.L_ELBOW: 500,
+            SERVO.HEAD_YAW: 1600, SERVO.HEAD_PITCH: 1500,
         },
         'point_left': {
-            SERVO.R_SHOULDER: 500, SERVO.R_ELBOW: 500,
-            SERVO.L_SHOULDER: 650, SERVO.L_ELBOW: 600,
-            SERVO.HEAD_YAW: 400, SERVO.HEAD_PITCH: 500,
+            SERVO.R_SHOULDER_ROLL: 500, SERVO.R_ELBOW: 500,
+            SERVO.L_SHOULDER_ROLL: 650, SERVO.L_ELBOW: 600,
+            SERVO.HEAD_YAW: 1400, SERVO.HEAD_PITCH: 1500,
         },
         'neutral': {
-            SERVO.R_SHOULDER: 500, SERVO.R_ELBOW: 500,
-            SERVO.L_SHOULDER: 500, SERVO.L_ELBOW: 500,
-            SERVO.HEAD_YAW: 500, SERVO.HEAD_PITCH: 500,
+            SERVO.R_SHOULDER_ROLL: 500, SERVO.R_ELBOW: 500,
+            SERVO.L_SHOULDER_ROLL: 500, SERVO.L_ELBOW: 500,
+            SERVO.HEAD_YAW: 1500, SERVO.HEAD_PITCH: 1500,
         },
     },
     'sequences': [
@@ -137,34 +140,34 @@ STYLE_EDM = {
     'description': 'Fast, energetic, pumping moves',
     'moves': {
         'pump_up': {
-            SERVO.R_SHOULDER: 250, SERVO.R_ELBOW: 400,
-            SERVO.L_SHOULDER: 750, SERVO.L_ELBOW: 600,
-            SERVO.HEAD_YAW: 500, SERVO.HEAD_PITCH: 350,
+            SERVO.R_SHOULDER_ROLL: 250, SERVO.R_ELBOW: 400,
+            SERVO.L_SHOULDER_ROLL: 750, SERVO.L_ELBOW: 600,
+            SERVO.HEAD_YAW: 1500, SERVO.HEAD_PITCH: 1350,
         },
         'pump_down': {
-            SERVO.R_SHOULDER: 400, SERVO.R_ELBOW: 500,
-            SERVO.L_SHOULDER: 600, SERVO.L_ELBOW: 500,
-            SERVO.HEAD_YAW: 500, SERVO.HEAD_PITCH: 550,
+            SERVO.R_SHOULDER_ROLL: 400, SERVO.R_ELBOW: 500,
+            SERVO.L_SHOULDER_ROLL: 600, SERVO.L_ELBOW: 500,
+            SERVO.HEAD_YAW: 1500, SERVO.HEAD_PITCH: 1600,
         },
         'rave_hands': {
-            SERVO.R_SHOULDER: 300, SERVO.R_ELBOW: 350,
-            SERVO.L_SHOULDER: 700, SERVO.L_ELBOW: 650,
-            SERVO.HEAD_YAW: 500, SERVO.HEAD_PITCH: 400,
+            SERVO.R_SHOULDER_ROLL: 300, SERVO.R_ELBOW: 350,
+            SERVO.L_SHOULDER_ROLL: 700, SERVO.L_ELBOW: 650,
+            SERVO.HEAD_YAW: 1500, SERVO.HEAD_PITCH: 1400,
         },
         'fist_pump_r': {
-            SERVO.R_SHOULDER: 200, SERVO.R_ELBOW: 300,
-            SERVO.L_SHOULDER: 500, SERVO.L_ELBOW: 500,
-            SERVO.HEAD_YAW: 550, SERVO.HEAD_PITCH: 400,
+            SERVO.R_SHOULDER_ROLL: 200, SERVO.R_ELBOW: 300,
+            SERVO.L_SHOULDER_ROLL: 500, SERVO.L_ELBOW: 500,
+            SERVO.HEAD_YAW: 1550, SERVO.HEAD_PITCH: 1400,
         },
         'fist_pump_l': {
-            SERVO.R_SHOULDER: 500, SERVO.R_ELBOW: 500,
-            SERVO.L_SHOULDER: 800, SERVO.L_ELBOW: 700,
-            SERVO.HEAD_YAW: 450, SERVO.HEAD_PITCH: 400,
+            SERVO.R_SHOULDER_ROLL: 500, SERVO.R_ELBOW: 500,
+            SERVO.L_SHOULDER_ROLL: 800, SERVO.L_ELBOW: 700,
+            SERVO.HEAD_YAW: 1450, SERVO.HEAD_PITCH: 1400,
         },
         'neutral': {
-            SERVO.R_SHOULDER: 500, SERVO.R_ELBOW: 500,
-            SERVO.L_SHOULDER: 500, SERVO.L_ELBOW: 500,
-            SERVO.HEAD_YAW: 500, SERVO.HEAD_PITCH: 500,
+            SERVO.R_SHOULDER_ROLL: 500, SERVO.R_ELBOW: 500,
+            SERVO.L_SHOULDER_ROLL: 500, SERVO.L_ELBOW: 500,
+            SERVO.HEAD_YAW: 1500, SERVO.HEAD_PITCH: 1500,
         },
     },
     'sequences': [
@@ -180,39 +183,39 @@ STYLE_HIPHOP = {
     'description': 'Head bobs, punches, swagger',
     'moves': {
         'head_bob': {
-            SERVO.R_SHOULDER: 500, SERVO.R_ELBOW: 500,
-            SERVO.L_SHOULDER: 500, SERVO.L_ELBOW: 500,
-            SERVO.HEAD_YAW: 500, SERVO.HEAD_PITCH: 600,
+            SERVO.R_SHOULDER_ROLL: 500, SERVO.R_ELBOW: 500,
+            SERVO.L_SHOULDER_ROLL: 500, SERVO.L_ELBOW: 500,
+            SERVO.HEAD_YAW: 1500, SERVO.HEAD_PITCH: 1600,
         },
         'head_up': {
-            SERVO.R_SHOULDER: 500, SERVO.R_ELBOW: 500,
-            SERVO.L_SHOULDER: 500, SERVO.L_ELBOW: 500,
-            SERVO.HEAD_YAW: 500, SERVO.HEAD_PITCH: 400,
+            SERVO.R_SHOULDER_ROLL: 500, SERVO.R_ELBOW: 500,
+            SERVO.L_SHOULDER_ROLL: 500, SERVO.L_ELBOW: 500,
+            SERVO.HEAD_YAW: 1500, SERVO.HEAD_PITCH: 1400,
         },
         'right_punch': {
-            SERVO.R_SHOULDER: 300, SERVO.R_ELBOW: 250,
-            SERVO.L_SHOULDER: 500, SERVO.L_ELBOW: 500,
-            SERVO.HEAD_YAW: 600, SERVO.HEAD_PITCH: 500,
+            SERVO.R_SHOULDER_ROLL: 300, SERVO.R_ELBOW: 250,
+            SERVO.L_SHOULDER_ROLL: 500, SERVO.L_ELBOW: 500,
+            SERVO.HEAD_YAW: 1600, SERVO.HEAD_PITCH: 1500,
         },
         'left_punch': {
-            SERVO.R_SHOULDER: 500, SERVO.R_ELBOW: 500,
-            SERVO.L_SHOULDER: 700, SERVO.L_ELBOW: 750,
-            SERVO.HEAD_YAW: 400, SERVO.HEAD_PITCH: 500,
+            SERVO.R_SHOULDER_ROLL: 500, SERVO.R_ELBOW: 500,
+            SERVO.L_SHOULDER_ROLL: 700, SERVO.L_ELBOW: 750,
+            SERVO.HEAD_YAW: 1400, SERVO.HEAD_PITCH: 1500,
         },
         'swagger_r': {
-            SERVO.R_SHOULDER: 450, SERVO.R_ELBOW: 450,
-            SERVO.L_SHOULDER: 500, SERVO.L_ELBOW: 400,
-            SERVO.HEAD_YAW: 550, SERVO.HEAD_PITCH: 520,
+            SERVO.R_SHOULDER_ROLL: 450, SERVO.R_ELBOW: 450,
+            SERVO.L_SHOULDER_ROLL: 500, SERVO.L_ELBOW: 400,
+            SERVO.HEAD_YAW: 1550, SERVO.HEAD_PITCH: 1520,
         },
         'swagger_l': {
-            SERVO.R_SHOULDER: 500, SERVO.R_ELBOW: 400,
-            SERVO.L_SHOULDER: 550, SERVO.L_ELBOW: 550,
-            SERVO.HEAD_YAW: 450, SERVO.HEAD_PITCH: 520,
+            SERVO.R_SHOULDER_ROLL: 500, SERVO.R_ELBOW: 400,
+            SERVO.L_SHOULDER_ROLL: 550, SERVO.L_ELBOW: 550,
+            SERVO.HEAD_YAW: 1450, SERVO.HEAD_PITCH: 1520,
         },
         'neutral': {
-            SERVO.R_SHOULDER: 500, SERVO.R_ELBOW: 500,
-            SERVO.L_SHOULDER: 500, SERVO.L_ELBOW: 500,
-            SERVO.HEAD_YAW: 500, SERVO.HEAD_PITCH: 500,
+            SERVO.R_SHOULDER_ROLL: 500, SERVO.R_ELBOW: 500,
+            SERVO.L_SHOULDER_ROLL: 500, SERVO.L_ELBOW: 500,
+            SERVO.HEAD_YAW: 1500, SERVO.HEAD_PITCH: 1500,
         },
     },
     'sequences': [
